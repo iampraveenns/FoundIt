@@ -4,6 +4,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { itemRepository, calculateDistanceKm } from '../services/itemStore.js';
 import { auditRepository } from '../services/auditStore.js';
 import { optionalAuth } from '../middleware/auth.js';
+import { pushNotificationService } from '../services/pushNotification.js';
 
 const router = express.Router();
 
@@ -228,6 +229,16 @@ router.post('/found', upload.single('image'), async (req, res) => {
     if (io) {
       io.emit('item:found', savedItem);
       console.log(`[Socket.io] Broadcasted new found item: "${savedItem.itemName}"`);
+
+      // Dispatch native geospatial radius push alerts to watching citizens
+      pushNotificationService
+        .dispatchGeospatialAlerts(savedItem, io)
+        .then((res) => {
+          if (res.matchedCount > 0) {
+            console.log(`[PushAlerts] Dispatched ${res.matchedCount} radius alerts for "${savedItem.itemName}"`);
+          }
+        })
+        .catch((e) => console.warn('[PushAlerts] Dispatch error:', e.message));
     }
 
     return res.status(201).json({

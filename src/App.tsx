@@ -16,6 +16,7 @@ import {
   RefreshCw,
   FileText,
   UserCheck,
+  TrendingUp,
 } from 'lucide-react';
 import LiveFeed from '../frontend/LiveFeed.jsx';
 import SmartSearch from './components/SmartSearch.tsx';
@@ -24,12 +25,15 @@ import ReportFoundWizard from './components/ReportFoundWizard.tsx';
 import SecureChat from './components/SecureChat.tsx';
 import SmartSearchSidebar, { SearchFilters } from './components/SmartSearchSidebar.tsx';
 import AuditLogView from './components/AuditLogView.tsx';
+import AnalyticsDashboard from './components/AnalyticsDashboard.tsx';
+import ClaimsHubManager from './components/ClaimsHubManager.tsx';
 import AuthRoleModal from './components/AuthRoleModal.tsx';
 import ItemDetailModal from './components/ItemDetailModal.tsx';
 import ClaimModal from './components/ClaimModal.tsx';
 import RadarView from './components/RadarView.tsx';
 import { FoundItem, Stats, User } from './types.ts';
 import { offlineDraftStore } from './utils/offlineQueue.ts';
+import { io } from 'socket.io-client';
 
 const DEFAULT_USER: User = {
   id: 'user_officer_01',
@@ -42,13 +46,18 @@ const DEFAULT_USER: User = {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'feed' | 'map' | 'search' | 'audit' | 'specs'>('feed');
+  const [activeTab, setActiveTab] = useState<
+    'feed' | 'map' | 'search' | 'claims' | 'analytics' | 'audit' | 'specs'
+  >('feed');
   const [items, setItems] = useState<FoundItem[]>([]);
   const [stats, setStats] = useState<Stats>({ totalFound: 5, claimed: 1, active: 4, successRate: 20 });
 
   // Authentication & RBAC state
   const [currentUser, setCurrentUser] = useState<User>(DEFAULT_USER);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Live Push Notification Toast State
+  const [livePushAlert, setLivePushAlert] = useState<any | null>(null);
 
   // Modals & Drawers state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
@@ -95,9 +104,17 @@ export default function App() {
     window.addEventListener('offline', handleOffline);
     checkOfflineDrafts();
 
+    // Listen for real-time geospatial radius push alerts
+    const socket = io({ transports: ['websocket', 'polling'] });
+    socket.on('push:alert', (alertData: any) => {
+      setLivePushAlert(alertData);
+      setTimeout(() => setLivePushAlert(null), 7000);
+    });
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      socket.disconnect();
     };
   }, []);
 
@@ -246,6 +263,28 @@ export default function App() {
               AI Smart Search
             </button>
             <button
+              onClick={() => setActiveTab('claims')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                activeTab === 'claims'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
+              Claims &amp; Hubs
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                activeTab === 'analytics'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
+              Analytics
+            </button>
+            <button
               onClick={() => setActiveTab('audit')}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
                 activeTab === 'audit'
@@ -338,6 +377,22 @@ export default function App() {
             Search
           </button>
           <button
+            onClick={() => setActiveTab('claims')}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
+              activeTab === 'claims' ? 'bg-indigo-600 text-white' : 'text-slate-400'
+            }`}
+          >
+            Claims
+          </button>
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
+              activeTab === 'analytics' ? 'bg-indigo-600 text-white' : 'text-slate-400'
+            }`}
+          >
+            Analytics
+          </button>
+          <button
             onClick={() => setActiveTab('audit')}
             className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
               activeTab === 'audit' ? 'bg-indigo-600 text-white' : 'text-slate-400'
@@ -355,6 +410,23 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      {/* Real-Time Push Notification Alert Banner */}
+      {livePushAlert && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-indigo-950/95 border-2 border-indigo-400 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-white animate-bounce">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <strong className="text-xs font-bold text-indigo-300">📍 Native Geospatial Radius Alert</strong>
+            </div>
+            <button onClick={() => setLivePushAlert(null)} className="text-slate-400 hover:text-white text-xs">
+              &times;
+            </button>
+          </div>
+          <h4 className="text-xs font-bold mt-1 text-white">{livePushAlert.title}</h4>
+          <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">{livePushAlert.body}</p>
+        </div>
+      )}
 
       {/* Main View Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -397,6 +469,15 @@ export default function App() {
             />
           </div>
         )}
+
+        {activeTab === 'claims' && (
+          <ClaimsHubManager
+            currentUserRole={currentUser.role}
+            currentUserName={currentUser.name}
+          />
+        )}
+
+        {activeTab === 'analytics' && <AnalyticsDashboard />}
 
         {activeTab === 'audit' && (
           <AuditLogView currentUserRole={currentUser.role} />
