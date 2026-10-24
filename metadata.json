@@ -1,0 +1,6 @@
+{
+  "name": "FoundIt - Real-Time AI Lost & Found",
+  "description": "Production-grade MERN Lost & Found platform powered by Gemini multimodal vision extraction, semantic matching search, geospatial indexing, and real-time Socket.io live feeds.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
