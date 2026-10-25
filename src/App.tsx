@@ -17,6 +17,10 @@ import {
   FileText,
   UserCheck,
   TrendingUp,
+  Cpu,
+  HelpCircle,
+  Terminal,
+  QrCode,
 } from 'lucide-react';
 import LiveFeed from '../frontend/LiveFeed.jsx';
 import SmartSearch from './components/SmartSearch.tsx';
@@ -27,6 +31,11 @@ import SmartSearchSidebar, { SearchFilters } from './components/SmartSearchSideb
 import AuditLogView from './components/AuditLogView.tsx';
 import AnalyticsDashboard from './components/AnalyticsDashboard.tsx';
 import ClaimsHubManager from './components/ClaimsHubManager.tsx';
+import EnterpriseBI from './components/EnterpriseBI.tsx';
+import ReportLostModal from './components/ReportLostModal.tsx';
+import AutoMatchView from './components/AutoMatchView.tsx';
+import DigitalPickupPass from './components/DigitalPickupPass.tsx';
+import ApiDocsView from './components/ApiDocsView.tsx';
 import AuthRoleModal from './components/AuthRoleModal.tsx';
 import ItemDetailModal from './components/ItemDetailModal.tsx';
 import ClaimModal from './components/ClaimModal.tsx';
@@ -47,7 +56,7 @@ const DEFAULT_USER: User = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<
-    'feed' | 'map' | 'search' | 'claims' | 'analytics' | 'audit' | 'specs'
+    'feed' | 'map' | 'search' | 'lost' | 'claims' | 'analytics' | 'ledger' | 'apidocs' | 'audit' | 'specs'
   >('feed');
   const [items, setItems] = useState<FoundItem[]>([]);
   const [stats, setStats] = useState<Stats>({ totalFound: 5, claimed: 1, active: 4, successRate: 20 });
@@ -61,6 +70,8 @@ export default function App() {
 
   // Modals & Drawers state
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isReportLostOpen, setIsReportLostOpen] = useState(false);
+  const [activePickupPassData, setActivePickupPassData] = useState<any | null>(null);
   const [selectedItem, setSelectedItem] = useState<FoundItem | null>(null);
   const [itemToClaim, setItemToClaim] = useState<FoundItem | null>(null);
   const [chatItem, setChatItem] = useState<FoundItem | null>(null);
@@ -263,6 +274,17 @@ export default function App() {
               AI Smart Search
             </button>
             <button
+              onClick={() => setActiveTab('lost')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                activeTab === 'lost'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+              Lost &amp; Matches
+            </button>
+            <button
               onClick={() => setActiveTab('claims')}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
                 activeTab === 'claims'
@@ -283,6 +305,28 @@ export default function App() {
             >
               <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
               Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab('ledger')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                activeTab === 'ledger'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+              Ledger &amp; Infra
+            </button>
+            <button
+              onClick={() => setActiveTab('apidocs')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                activeTab === 'apidocs'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5 text-indigo-400" />
+              API Console
             </button>
             <button
               onClick={() => setActiveTab('audit')}
@@ -338,14 +382,24 @@ export default function App() {
               </div>
             </button>
 
+            {/* Report Lost Item Trigger Button */}
+            <button
+              onClick={() => setIsReportLostOpen(true)}
+              className="px-3.5 py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Report missing property to initiate automated matching"
+            >
+              <HelpCircle className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">Report Lost</span>
+            </button>
+
             {/* Multi-Step Wizard Trigger Button */}
             <button
               onClick={() => setIsWizardOpen(true)}
               className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-bold transition shadow-lg shadow-indigo-600/25 flex items-center gap-2 cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Report Item</span>
-              <span className="sm:hidden">Report</span>
+              <span className="hidden sm:inline">Report Found</span>
+              <span className="sm:hidden">Found</span>
             </button>
           </div>
         </div>
@@ -377,6 +431,14 @@ export default function App() {
             Search
           </button>
           <button
+            onClick={() => setActiveTab('lost')}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
+              activeTab === 'lost' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-400'
+            }`}
+          >
+            Lost
+          </button>
+          <button
             onClick={() => setActiveTab('claims')}
             className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
               activeTab === 'claims' ? 'bg-indigo-600 text-white' : 'text-slate-400'
@@ -391,6 +453,22 @@ export default function App() {
             }`}
           >
             Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('ledger')}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
+              activeTab === 'ledger' ? 'bg-indigo-600 text-white' : 'text-slate-400'
+            }`}
+          >
+            Ledger
+          </button>
+          <button
+            onClick={() => setActiveTab('apidocs')}
+            className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap ${
+              activeTab === 'apidocs' ? 'bg-indigo-600 text-white' : 'text-slate-400'
+            }`}
+          >
+            API
           </button>
           <button
             onClick={() => setActiveTab('audit')}
@@ -470,6 +548,14 @@ export default function App() {
           </div>
         )}
 
+        {activeTab === 'lost' && (
+          <AutoMatchView
+            onOpenReportLost={() => setIsReportLostOpen(true)}
+            onInitiateClaim={(item) => setItemToClaim(item)}
+            onSelectItem={(item) => setSelectedItem(item)}
+          />
+        )}
+
         {activeTab === 'claims' && (
           <ClaimsHubManager
             currentUserRole={currentUser.role}
@@ -478,6 +564,10 @@ export default function App() {
         )}
 
         {activeTab === 'analytics' && <AnalyticsDashboard />}
+
+        {activeTab === 'ledger' && <EnterpriseBI />}
+
+        {activeTab === 'apidocs' && <ApiDocsView />}
 
         {activeTab === 'audit' && (
           <AuditLogView currentUserRole={currentUser.role} />
@@ -626,8 +716,35 @@ export default function App() {
           handleClaimSuccess(item);
           // Open secure chat to coordinate pickup
           setChatItem(item);
+          // Pre-generate pickup pass data
+          setActivePickupPassData({
+            claimId: `CLAIM-${Date.now().toString().slice(-4)}`,
+            itemName: item.itemName,
+            category: item.category,
+            claimantName: currentUser.name,
+            claimantEmail: currentUser.email,
+            assignedHubName: 'Grand Central Terminal Central Hub',
+            assignedHubAddress: '89 E 42nd St, Lower Concourse, New York, NY 10017',
+            pickupLockerBin: 'LOCKER-CONCOURSE-A14',
+            tamperSealNumber: 'SEAL-NYC-99812',
+          });
         }}
       />
+
+      {/* Citizen Lost Property Notice Modal */}
+      <ReportLostModal
+        isOpen={isReportLostOpen}
+        onClose={() => setIsReportLostOpen(false)}
+        onReportCreated={() => setActiveTab('lost')}
+      />
+
+      {/* Digital Handshake Pickup Voucher Pass */}
+      {activePickupPassData && (
+        <DigitalPickupPass
+          claimData={activePickupPassData}
+          onClose={() => setActivePickupPassData(null)}
+        />
+      )}
     </div>
   );
 }

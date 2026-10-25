@@ -172,9 +172,9 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
   });
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 text-slate-900">
       {/* Header & Status Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl text-white">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
         <div>
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-3 w-3">
@@ -187,18 +187,18 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
               )}
             </span>
-            <h2 className="text-xl font-bold tracking-tight">Real-Time Lost &amp; Found Feed</h2>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">Real-Time Lost &amp; Found Feed</h2>
             <span
-              className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
+              className={`text-xs px-2.5 py-0.5 rounded-full font-bold border ${
                 isConnected
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                  : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-rose-50 text-rose-700 border-rose-200'
               }`}
             >
               {isConnected ? 'LIVE WEBSOCKET' : 'CONNECTING...'}
             </span>
           </div>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             New found items broadcast instantly across all connected devices via Socket.io.
           </p>
         </div>
@@ -206,17 +206,17 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition"
             title={soundEnabled ? 'Mute alert sound' : 'Unmute alert sound'}
           >
             {soundEnabled ? (
               <>
-                <Volume2 className="w-4 h-4 text-emerald-400" />
+                <Volume2 className="w-4 h-4 text-emerald-600" />
                 <span>Alert Audio On</span>
               </>
             ) : (
               <>
-                <VolumeX className="w-4 h-4 text-slate-400" />
+                <VolumeX className="w-4 h-4 text-slate-500" />
                 <span>Alert Audio Off</span>
               </>
             )}
@@ -224,7 +224,7 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
 
           <button
             onClick={fetchItems}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm"
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition shadow-sm"
           >
             Refresh
           </button>
@@ -233,21 +233,21 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
 
       {/* Real-time Banner Alert on new arrival */}
       {newArrivalAlert && (
-        <div className="animate-bounce bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-4 rounded-2xl shadow-lg flex items-center justify-between border border-emerald-400/40">
+        <div className="animate-bounce bg-emerald-50 text-emerald-950 p-4 rounded-2xl shadow-sm flex items-center justify-between border border-emerald-300">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+            <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-emerald-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 Just Reported Live!
               </p>
-              <p className="font-bold text-sm">
+              <p className="font-bold text-sm text-slate-900">
                 {newArrivalAlert.itemName} &bull; {newArrivalAlert.locationName}
               </p>
             </div>
           </div>
           <button
             onClick={() => onSelectItem && onSelectItem(newArrivalAlert)}
-            className="px-3 py-1.5 bg-white text-emerald-900 rounded-lg text-xs font-bold hover:bg-emerald-50 transition"
+            className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition"
           >
             Inspect Item
           </button>
@@ -255,7 +255,7 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
       )}
 
       {/* Filter Toolbar */}
-      <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-2xl p-4 space-y-3">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Quick text filter */}
           <div className="relative flex-1">
@@ -265,7 +265,7 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
               placeholder="Quick filter live items by keyword, brand, color, location..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-800/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
           </div>
 
@@ -275,10 +275,10 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-2 rounded-xl text-xs font-medium capitalize transition ${
+                className={`px-3 py-2 rounded-xl text-xs font-semibold capitalize transition ${
                   statusFilter === st
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700/60'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                 }`}
               >
                 {st === 'All' ? 'All Status' : st}
@@ -294,10 +294,10 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition ${
                 selectedCategory === cat
-                  ? 'bg-slate-100 text-slate-900 font-semibold'
-                  : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700'
+                  ? 'bg-slate-900 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
               }`}
             >
               {cat}
@@ -312,21 +312,20 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="bg-slate-900 border border-slate-800 rounded-2xl h-80 animate-pulse p-4 space-y-4"
+              className="bg-white border border-slate-200 rounded-2xl h-80 animate-pulse p-4 space-y-4 shadow-xs"
             >
-              <div className="bg-slate-800 h-44 rounded-xl w-full" />
-              <div className="bg-slate-800 h-4 rounded w-3/4" />
-              <div className="bg-slate-800 h-3 rounded w-1/2" />
+              <div className="bg-slate-100 h-44 rounded-xl w-full" />
+              <div className="bg-slate-100 h-4 rounded w-3/4" />
+              <div className="bg-slate-100 h-3 rounded w-1/2" />
             </div>
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="text-center py-16 bg-slate-900/40 border border-slate-800/80 rounded-2xl">
-          <AlertCircle className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-200">No items match criteria</h3>
-          <p className="text-sm text-slate-400 mt-1 max-w-sm mx-auto">
-            Try resetting your filters or report a new found item to see the real-time broadcast in
-            action.
+        <div className="text-center py-16 bg-white border border-slate-200 rounded-3xl shadow-xs">
+          <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <h3 className="text-base font-bold text-slate-800">No items match criteria</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            Try resetting your filters or report a new found item to see the real-time broadcast in action.
           </p>
           <button
             onClick={() => {
@@ -334,7 +333,7 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
               setStatusFilter('All');
               setSearchFilter('');
             }}
-            className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 rounded-xl"
+            className="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 rounded-xl"
           >
             Clear Filters
           </button>
@@ -346,11 +345,11 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
             return (
               <div
                 key={item._id || item.id}
-                className="group bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl overflow-hidden shadow-lg transition-all duration-200 flex flex-col justify-between"
+                className="group bg-white border border-slate-200 hover:border-slate-300 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   {/* Image Container with Badge Overlays */}
-                  <div className="relative h-48 w-full bg-slate-950 overflow-hidden">
+                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
                     <img
                       src={item.imageUrl}
                       alt={item.itemName}
@@ -359,16 +358,16 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
                     />
 
                     {/* Category Pill */}
-                    <div className="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-slate-200 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-700/60 shadow">
+                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-800 text-xs font-bold px-2.5 py-1 rounded-full border border-slate-200 shadow-xs">
                       {item.category}
                     </div>
 
                     {/* Status Pill */}
                     <div
-                      className={`absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-full border shadow backdrop-blur-md ${
+                      className={`absolute top-3 right-3 text-xs font-extrabold px-2.5 py-1 rounded-full border shadow-xs backdrop-blur-md ${
                         isFound
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                          : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          ? 'bg-amber-50 text-amber-800 border-amber-200'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                       }`}
                     >
                       {item.status.toUpperCase()}
@@ -376,42 +375,40 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
 
                     {/* AI Confidence Indicator */}
                     {item.aiConfidence && (
-                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md text-[10px] text-emerald-300 px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-500/30">
-                        <Sparkles className="w-3 h-3 text-emerald-400" />
+                      <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md text-[10px] text-emerald-800 font-bold px-2 py-0.5 rounded-md flex items-center gap-1 border border-emerald-200 shadow-xs">
+                        <Sparkles className="w-3 h-3 text-emerald-600" />
                         AI Verified ({Math.round(item.aiConfidence * 100)}%)
                       </div>
                     )}
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-4 space-y-2.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-white text-base leading-snug line-clamp-1 group-hover:text-indigo-400 transition-colors">
-                        {item.itemName}
-                      </h3>
-                    </div>
+                  <div className="p-4 space-y-2">
+                    <h3 className="font-bold text-slate-900 text-sm leading-snug line-clamp-1 group-hover:text-indigo-600 transition-colors">
+                      {item.itemName}
+                    </h3>
 
                     {/* Time & Color */}
-                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-slate-500" />
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
                         {formatTimeAgo(item.createdAt)}
                       </span>
                       <span>&bull;</span>
                       <span className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block"></span>
+                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>
                         {item.color}
                       </span>
                     </div>
 
                     {/* Location */}
-                    <div className="flex items-start gap-1.5 text-xs text-slate-300">
-                      <MapPin className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-1.5 text-xs text-slate-600">
+                      <MapPin className="w-3.5 h-3.5 text-rose-500 flex-shrink-0 mt-0.5" />
                       <span className="line-clamp-1">{item.locationName}</span>
                     </div>
 
                     {/* Description */}
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
 
@@ -421,7 +418,7 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
                         {item.searchTags.slice(0, 4).map((tag, tIdx) => (
                           <span
                             key={tIdx}
-                            className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md border border-slate-700/60"
+                            className="text-[10px] bg-slate-100 text-slate-600 font-medium px-2 py-0.5 rounded-md border border-slate-200"
                           >
                             #{tag}
                           </span>
@@ -432,10 +429,10 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
                 </div>
 
                 {/* Card Actions */}
-                <div className="p-4 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 bg-slate-900/40">
+                <div className="p-4 pt-2 border-t border-slate-100 flex items-center justify-between gap-2 bg-slate-50/50">
                   <button
                     onClick={() => onSelectItem && onSelectItem(item)}
-                    className="flex-1 py-2 px-3 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition text-center"
+                    className="flex-1 py-2 px-3 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl transition text-center shadow-xs"
                   >
                     Details &amp; Radar
                   </button>
@@ -443,14 +440,14 @@ export default function LiveFeed({ onSelectItem, onClaimClick }) {
                   {isFound ? (
                     <button
                       onClick={() => onClaimClick && onClaimClick(item)}
-                      className="py-2 px-3.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition shadow-sm flex items-center gap-1"
+                      className="py-2 px-3.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition shadow-xs flex items-center gap-1"
                     >
                       <ShieldCheck className="w-3.5 h-3.5" />
                       Claim This
                     </button>
                   ) : (
-                    <span className="py-2 px-3 text-xs font-medium text-emerald-400 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="py-2 px-3 text-xs font-semibold text-slate-500 bg-slate-100 rounded-xl flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       Reunited
                     </span>
                   )}

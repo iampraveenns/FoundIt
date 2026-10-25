@@ -5,6 +5,7 @@ import { itemRepository, calculateDistanceKm } from '../services/itemStore.js';
 import { auditRepository } from '../services/auditStore.js';
 import { optionalAuth } from '../middleware/auth.js';
 import { pushNotificationService } from '../services/pushNotification.js';
+import { lostReportRepository } from '../services/lostReportStore.js';
 
 const router = express.Router();
 
@@ -239,6 +240,17 @@ router.post('/found', upload.single('image'), async (req, res) => {
           }
         })
         .catch((e) => console.warn('[PushAlerts] Dispatch error:', e.message));
+
+      // Dual-direction auto-match check against active citizen lost reports
+      lostReportRepository
+        .matchIncomingFoundItem(savedItem)
+        .then((matches) => {
+          if (matches.length > 0) {
+            console.log(`[AutoMatcher] Found ${matches.length} matching citizen lost reports for "${savedItem.itemName}"`);
+            io.emit('lost_report:match_found', { item: savedItem, matchesCount: matches.length });
+          }
+        })
+        .catch((e) => console.warn('[AutoMatcher] Matching notice:', e.message));
     }
 
     return res.status(201).json({

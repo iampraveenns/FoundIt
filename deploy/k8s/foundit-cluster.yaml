@@ -1,0 +1,221 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: foundit-production
+  labels:
+    app.kubernetes.io/name: foundit
+    environment: production
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foundit-config
+  namespace: foundit-production
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  MONGODB_URI: "mongodb://mongo-cluster.foundit-production.svc.cluster.local:27017/foundit"
+  REDIS_URI: "redis://redis-cluster.foundit-production.svc.cluster.local:6379"
+  INTAKE_SERVICE_URL: "http://intake-service.foundit-production.svc.cluster.local:3001"
+  CLAIMS_SERVICE_URL: "http://claims-service.foundit-production.svc.cluster.local:3002"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: foundit-secrets
+  namespace: foundit-production
+type: Opaque
+stringData:
+  JWT_SECRET: "foundit_k8s_production_secure_secret_key_2026"
+  GEMINI_API_KEY: "AIzaSy_PROD_GEMINI_API_KEY_SECURE"
+---
+# ====================================================================
+# API GATEWAY & WEB APPLICATION DEPLOYMENT
+# ====================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foundit-web-gateway
+  namespace: foundit-production
+  labels:
+    app: foundit-web-gateway
+    tier: frontend-gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: foundit-web-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: foundit-web-gateway
+    spec:
+      containers:
+        - name: gateway
+          image: gcr.io/foundit-enterprise/web-gateway:v2.4.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: foundit-config
+            - secretRef:
+                name: foundit-secrets
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1.5Gi"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+# ====================================================================
+# ITEM INTAKE & GEMINI VISION ASYNC WORKER DEPLOYMENT
+# ====================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foundit-intake-worker
+  namespace: foundit-production
+  labels:
+    app: foundit-intake-worker
+    tier: backend-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: foundit-intake-worker
+  template:
+    metadata:
+      labels:
+        app: foundit-intake-worker
+    spec:
+      containers:
+        - name: intake-processor
+          image: gcr.io/foundit-enterprise/intake-worker:v2.4.0
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: foundit-config
+            - secretRef:
+                name: foundit-secrets
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "3Gi"
+---
+# ====================================================================
+# HORIZONTAL POD AUTOSCALER (HPA) FOR INTAKE & GATEWAY
+# ====================================================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: foundit-gateway-hpa
+  namespace: foundit-production
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: foundit-web-gateway
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# ====================================================================
+# KUBERNETES SERVICE DEFINITIONS
+# ====================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: foundit-gateway-svc
+  namespace: foundit-production
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30080
+      protocol: TCP
+      name: http
+  selector:
+    app: foundit-web-gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: intake-service
+  namespace: foundit-production
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+  selector:
+    app: foundit-intake-worker
+---
+# ====================================================================
+# INGRESS CONTROLLER WITH TLS
+# ====================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foundit-ingress
+  namespace: foundit-production
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "35m"
+    nginx.ingress.kubernetes.io/websocket-services: "foundit-gateway-svc"
+spec:
+  tls:
+    - hosts:
+        - foundit.transit.gov
+        - app.foundit.gov
+      secretName: foundit-tls-cert
+  rules:
+    - host: foundit.transit.gov
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: foundit-gateway-svc
+                port:
+                  number: 80

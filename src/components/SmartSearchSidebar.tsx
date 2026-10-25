@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Search,
   Filter,
@@ -77,17 +77,17 @@ export default function SmartSearchSidebar({
   if (!isOpen) return null;
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-slate-900/95 border-l border-slate-800 shadow-2xl backdrop-blur-xl p-6 flex flex-col justify-between text-white overflow-y-auto animate-slide-left">
+    <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 bg-white/98 border-l border-slate-200 shadow-2xl backdrop-blur-xl p-6 flex flex-col justify-between text-slate-900 overflow-y-auto animate-slide-left">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <Sliders className="w-5 h-5 text-indigo-400" />
-            <h3 className="font-bold text-base">Advanced AI Filter Drawer</h3>
+            <Sliders className="w-5 h-5 text-indigo-600" />
+            <h3 className="font-bold text-base text-slate-900">Advanced AI Filter Drawer</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -95,8 +95,8 @@ export default function SmartSearchSidebar({
 
         {/* Natural Language Search Input */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             Natural Query
           </label>
           <div className="relative">
@@ -106,7 +106,7 @@ export default function SmartSearchSidebar({
               placeholder="e.g. Lost navy backpack with blue bottle"
               value={filters.query}
               onChange={(e) => onChangeFilters({ ...filters, query: e.target.value })}
-              className="w-full pl-9 pr-3 py-2 bg-slate-950/70 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>
@@ -114,14 +114,14 @@ export default function SmartSearchSidebar({
         {/* Category Multi-Select */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-indigo-600" />
               Categories ({filters.categories.length ? filters.categories.length : 'Any'})
             </label>
             {filters.categories.length > 0 && (
               <button
                 onClick={() => onChangeFilters({ ...filters, categories: [] })}
-                className="text-[10px] text-indigo-400 hover:text-indigo-300"
+                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold"
               >
                 Clear
               </button>
@@ -134,10 +134,10 @@ export default function SmartSearchSidebar({
                 <button
                   key={cat}
                   onClick={() => toggleCategory(cat)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs text-left truncate transition flex items-center justify-between ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs text-left truncate transition flex items-center justify-between border ${
                     selected
-                      ? 'bg-indigo-600 text-white font-semibold'
-                      : 'bg-slate-950/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                      ? 'bg-indigo-600 border-indigo-600 text-white font-semibold shadow-2xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                   }`}
                 >
                   <span className="truncate">{cat}</span>
@@ -151,11 +151,11 @@ export default function SmartSearchSidebar({
         {/* Proximity Distance Slider */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-rose-400" />
+            <span className="font-semibold text-slate-700 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-rose-500" />
               Proximity Radius
             </span>
-            <strong className="text-indigo-400 font-bold">{filters.radiusKm} km</strong>
+            <strong className="text-indigo-600 font-bold">{filters.radiusKm} km</strong>
           </div>
           <input
             type="range"
@@ -164,14 +164,14 @@ export default function SmartSearchSidebar({
             step="2"
             value={filters.radiusKm}
             onChange={(e) => onChangeFilters({ ...filters, radiusKm: Number(e.target.value) })}
-            className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
           />
         </div>
 
         {/* Date Range Selection */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-teal-400" />
+          <label className="block text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-teal-600" />
             Date Found Window
           </label>
           <div className="grid grid-cols-2 gap-1.5">
@@ -179,10 +179,10 @@ export default function SmartSearchSidebar({
               <button
                 key={r.id}
                 onClick={() => onChangeFilters({ ...filters, dateRange: r.id })}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition border ${
                   filters.dateRange === r.id
-                    ? 'bg-indigo-600 text-white font-semibold'
-                    : 'bg-slate-950/60 text-slate-400 hover:bg-slate-800'
+                    ? 'bg-indigo-600 border-indigo-600 text-white font-semibold shadow-2xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 {r.label}
@@ -193,16 +193,16 @@ export default function SmartSearchSidebar({
 
         {/* Status Pill Switcher */}
         <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-2">Item Status</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-2">Item Status</label>
           <div className="flex items-center gap-2">
             {(['All', 'found', 'claimed'] as const).map((st) => (
               <button
                 key={st}
                 onClick={() => onChangeFilters({ ...filters, status: st })}
-                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition ${
+                className={`flex-1 py-1.5 text-xs font-semibold rounded-lg capitalize transition border ${
                   filters.status === st
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-950/60 text-slate-400 hover:bg-slate-800'
+                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-2xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
                 {st}
@@ -213,10 +213,10 @@ export default function SmartSearchSidebar({
       </div>
 
       {/* Actions */}
-      <div className="pt-6 border-t border-slate-800 flex items-center gap-3">
+      <div className="pt-6 border-t border-slate-100 flex items-center gap-3">
         <button
           onClick={handleReset}
-          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 rounded-xl flex items-center gap-1.5"
+          className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 rounded-xl flex items-center gap-1.5 border border-slate-200"
         >
           <RotateCcw className="w-3.5 h-3.5" /> Reset
         </button>
@@ -225,7 +225,7 @@ export default function SmartSearchSidebar({
             onExecuteSearch();
             onClose();
           }}
-          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg transition text-center"
+          className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition text-center"
         >
           Apply Filters
         </button>

@@ -12,6 +12,11 @@ import authRouter from './routes/auth.js';
 import claimsRouter from './routes/claims.js';
 import hubsRouter from './routes/hubs.js';
 import notificationsRouter from './routes/notifications.js';
+import ledgerRouter from './routes/ledger.js';
+import lostReportsRouter from './routes/lostReports.js';
+import privacyRouter from './routes/privacy.js';
+import analyticsRouter from './routes/analytics.js';
+import noticesRouter from './routes/notices.js';
 
 dotenv.config();
 
@@ -51,6 +56,11 @@ app.use('/items', itemsRouter);
 app.use('/api/claims', claimsRouter);
 app.use('/api/hubs', hubsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/ledger', ledgerRouter);
+app.use('/api/lost-reports', lostReportsRouter);
+app.use('/api/privacy', privacyRouter);
+app.use('/api/analytics', analyticsRouter);
+app.use('/api/notices', noticesRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
